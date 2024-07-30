@@ -227,87 +227,145 @@ void AttachWaypoints(boost::property_tree::ptree& document, Smart3DWaypoints& wa
         placemark.add("wpml:useStraightLine", 1);
     }
     int num = 0;
-    while (num < waypoints.positions.size() && (num + 1) < waypoints.positions.size()) {
+    for (size_t i = 0; i < waypoints.positions.size(); i++)
+    {
         
-        int start  = num;
-        int end   = num +1;
+        auto& placemark                  = folder.add("Placemark", "");
+        auto& waypointGimbalHeadingParam = placemark.add("wpml:waypointGimbalHeadingParam", "");
+        waypointGimbalHeadingParam.add("wpml:waypointGimbalPitchAngle", 0);
+        waypointGimbalHeadingParam.add("wpml:waypointGimbalYawAngle", 0);
+        placemark.add("wpml:isRisky", 0);
+        auto&      point     = placemark.add("Point", "");
+        auto pos = waypoints.positions[i];
+;    std::string coord = std::to_string(pos[0]) + "," + std::to_string(pos[1]);
+        point.add("coordinates", coord);
+        placemark.add("wpml:index", i);
+        placemark.add("wpml:executeHeight", (int)pos[2]);
+        placemark.add("wpml:waypointSpeed", waypoints.speed);
+        auto& waypointHeadingParam = placemark.add("wpml:waypointHeadingParam", "");
+        waypointHeadingParam.add("wpml:waypointHeadingMode", "followWayline");
+        waypointHeadingParam.add("wpml:waypointHeadingAngleEnable", 1);
+        waypointHeadingParam.add("wpml:waypointHeadingPathMode", "followBadArc");
+        auto& waypointTurnParam = placemark.add("wpml:waypointTurnParam", "");
+        waypointTurnParam.add("wpml:waypointTurnMode",
+                                "toPointAndStopWithDiscontinuityCurvature");
+        waypointTurnParam.add("wpml:waypointTurnDampingDist", 0);
+        placemark.add("wpml:useStraightLine", 1);
+        auto& actionGroup = placemark.add("wpml:actionGroup", "");
+        actionGroup.add("wpml:actionGroupId", i);
+        actionGroup.add("wpml:actionGroupStartIndex", i+1);
+        actionGroup.add("wpml:actionGroupEndIndex", i+1);
+        actionGroup.add("wpml:actionGroupMode", "sequence");
 
-        // start
+        auto& actionTrigger = actionGroup.add("wpml:actionTrigger", "");
+        actionTrigger.add("wpml:actionTriggerType", "reachPoint");
+
+        // 1
         {
-            auto& placemark                  = folder.add("Placemark", "");
-            auto& waypointGimbalHeadingParam = placemark.add("wpml:waypointGimbalHeadingParam", "");
-            waypointGimbalHeadingParam.add("wpml:waypointGimbalPitchAngle", 0);
-            waypointGimbalHeadingParam.add("wpml:waypointGimbalYawAngle", 0);
-            placemark.add("wpml:isRisky", 0);
-            auto&      point     = placemark.add("Point", "");
-            auto pos   = waypoints.positions[start];
-            auto startPos  = waypoints.positions[start];
-            auto endPos  = waypoints.positions[end];
-
-            
-            std::string coord = std::to_string(pos[0]) + "," + std::to_string(pos[1]);
-            point.add("coordinates", coord);
-            placemark.add("wpml:index", (start + 1));
-            placemark.add("wpml:executeHeight", (int)pos[2]);
-            placemark.add("wpml:waypointSpeed", waypoints.speed);
-            auto& waypointHeadingParam = placemark.add("wpml:waypointHeadingParam", "");
-            waypointHeadingParam.add("wpml:waypointHeadingMode", "followWayline");
-            waypointHeadingParam.add("wpml:waypointHeadingAngleEnable", 1);
-            waypointHeadingParam.add("wpml:waypointHeadingPathMode", "followBadArc");
-            auto& waypointTurnParam = placemark.add("wpml:waypointTurnParam", "");
-            waypointTurnParam.add("wpml:waypointTurnMode",
-                                  "toPointAndStopWithDiscontinuityCurvature");
-            waypointTurnParam.add("wpml:waypointTurnDampingDist", 0);
-            placemark.add("wpml:useStraightLine", 1);
-            auto& actionGroup = placemark.add("wpml:actionGroup", "");
-            actionGroup.add("wpml:actionGroupId", (start+1));
-            actionGroup.add("wpml:actionGroupStartIndex", (start+1));
-            actionGroup.add("wpml:actionGroupEndIndex", (start+2));
-            actionGroup.add("wpml:actionGroupMode", "sequence");
-            auto& actionTrigger = actionGroup.add("wpml:actionTrigger", "");
-            actionTrigger.add("wpml:actionTriggerType", "betweenAdjacentPoints");
-
             auto& action = actionGroup.add("wpml:action", "");
             action.add("wpml:actionId", 0);
-            action.add("wpml:actionActuatorFunc", "startSmartOblique");
+            action.add("wpml:actionActuatorFunc", "gimbalRotate");
             auto& actionActuatorFuncParam = action.add("wpml:actionActuatorFuncParam", "");
-            actionActuatorFuncParam.add("wpml:smartObliqueCycleMode", "unlimited");
-            actionActuatorFuncParam.add("wpml:payloadPositionIndex", 0);
-            float staytime = g_settings.distance /6.0 /  g_settings.speed;
-            SmartObliquePoint(actionActuatorFuncParam,
-                              g_settings.sixVS[0][0],
-                              g_settings.sixVS[0][1],
-                              0,
-                              staytime);
-            SmartObliquePoint(actionActuatorFuncParam,
-                              g_settings.sixVS[1][0],
-                              g_settings.sixVS[1][1],
-                              0,
-                              staytime);
-            SmartObliquePoint(actionActuatorFuncParam,
-                              g_settings.sixVS[2][0],
-                              g_settings.sixVS[2][1],
-                              0,
-                              staytime);
-            SmartObliquePoint(actionActuatorFuncParam,
-                              g_settings.sixVS[3][0],
-                              g_settings.sixVS[3][1],
-                              0,
-                              staytime);
-            SmartObliquePoint(actionActuatorFuncParam,
-                              g_settings.sixVS[4][0],
-                              g_settings.sixVS[4][1],
-                              0,
-                              staytime);
-            SmartObliquePoint(actionActuatorFuncParam,
-                              g_settings.sixVS[5][0],
-                              g_settings.sixVS[5][1],
-                              0,
-                              staytime);
-            placemark.add("wpml:isRisky", 0);
+            actionActuatorFuncParam.add("wpml:gimbalRotateMode", "absoluteAngle");
+            actionActuatorFuncParam.add("wpml:gimbalPitchRotateEnable", "1");
+            actionActuatorFuncParam.add("wpml:gimbalPitchRotateAngle", "25");
+            actionActuatorFuncParam.add("wpml:gimbalRollRotateEnable", "0");
+            actionActuatorFuncParam.add("wpml:gimbalRollRotateAngle", "0");
+            actionActuatorFuncParam.add("wpml:gimbalYawRotateEnable", "1");
+            actionActuatorFuncParam.add("wpml:gimbalYawRotateAngle", "45");
+            actionActuatorFuncParam.add("wpml:gimbalRotateTimeEnable", "0");
+            actionActuatorFuncParam.add("wpml:gimbalRotateTime", "0");
+            actionActuatorFuncParam.add("wpml:payloadPositionIndex", "0");
         }
 
-        num += 2;
+        {
+            auto& action = actionGroup.add("wpml:action", "");
+            action.add("wpml:actionId", 1);
+            action.add("wpml:actionActuatorFunc", "takePhoto");
+            auto& actionActuatorFuncParam = action.add("wpml:actionActuatorFuncParam", "");
+            actionActuatorFuncParam.add("wpml:payloadPositionIndex", "0");
+        }
+
+
+        // 2
+        {
+            auto& action = actionGroup.add("wpml:action", "");
+            action.add("wpml:actionId", 2);
+            action.add("wpml:actionActuatorFunc", "gimbalRotate");
+            auto& actionActuatorFuncParam = action.add("wpml:actionActuatorFuncParam", "");
+            actionActuatorFuncParam.add("wpml:gimbalRotateMode", "absoluteAngle");
+            actionActuatorFuncParam.add("wpml:gimbalPitchRotateEnable", "1");
+            actionActuatorFuncParam.add("wpml:gimbalPitchRotateAngle", "25");
+            actionActuatorFuncParam.add("wpml:gimbalRollRotateEnable", "0");
+            actionActuatorFuncParam.add("wpml:gimbalRollRotateAngle", "0");
+            actionActuatorFuncParam.add("wpml:gimbalYawRotateEnable", "1");
+            actionActuatorFuncParam.add("wpml:gimbalYawRotateAngle", "-45");
+            actionActuatorFuncParam.add("wpml:gimbalRotateTimeEnable", "0");
+            actionActuatorFuncParam.add("wpml:gimbalRotateTime", "0");
+            actionActuatorFuncParam.add("wpml:payloadPositionIndex", "0");
+        }
+
+        {
+            auto& action = actionGroup.add("wpml:action", "");
+            action.add("wpml:actionId", 3);
+            action.add("wpml:actionActuatorFunc", "takePhoto");
+            auto& actionActuatorFuncParam = action.add("wpml:actionActuatorFuncParam", "");
+            actionActuatorFuncParam.add("wpml:payloadPositionIndex", "0");
+        }
+
+        // 3
+        {
+            auto& action = actionGroup.add("wpml:action", "");
+            action.add("wpml:actionId", 4);
+            action.add("wpml:actionActuatorFunc", "gimbalRotate");
+            auto& actionActuatorFuncParam = action.add("wpml:actionActuatorFuncParam", "");
+            actionActuatorFuncParam.add("wpml:gimbalRotateMode", "absoluteAngle");
+            actionActuatorFuncParam.add("wpml:gimbalPitchRotateEnable", "1");
+            actionActuatorFuncParam.add("wpml:gimbalPitchRotateAngle", "90");
+            actionActuatorFuncParam.add("wpml:gimbalRollRotateEnable", "0");
+            actionActuatorFuncParam.add("wpml:gimbalRollRotateAngle", "0");
+            actionActuatorFuncParam.add("wpml:gimbalYawRotateEnable", "1");
+            actionActuatorFuncParam.add("wpml:gimbalYawRotateAngle", "45");
+            actionActuatorFuncParam.add("wpml:gimbalRotateTimeEnable", "0");
+            actionActuatorFuncParam.add("wpml:gimbalRotateTime", "0");
+            actionActuatorFuncParam.add("wpml:payloadPositionIndex", "0");
+        }
+
+        {
+            auto& action = actionGroup.add("wpml:action", "");
+            action.add("wpml:actionId", 5);
+            action.add("wpml:actionActuatorFunc", "takePhoto");
+            auto& actionActuatorFuncParam = action.add("wpml:actionActuatorFuncParam", "");
+            actionActuatorFuncParam.add("wpml:payloadPositionIndex", "0");
+        }
+
+        // 4
+        {
+            auto& action = actionGroup.add("wpml:action", "");
+            action.add("wpml:actionId", 6);
+            action.add("wpml:actionActuatorFunc", "gimbalRotate");
+            auto& actionActuatorFuncParam = action.add("wpml:actionActuatorFuncParam", "");
+            actionActuatorFuncParam.add("wpml:gimbalRotateMode", "absoluteAngle");
+            actionActuatorFuncParam.add("wpml:gimbalPitchRotateEnable", "1");
+            actionActuatorFuncParam.add("wpml:gimbalPitchRotateAngle", "90");
+            actionActuatorFuncParam.add("wpml:gimbalRollRotateEnable", "0");
+            actionActuatorFuncParam.add("wpml:gimbalRollRotateAngle", "0");
+            actionActuatorFuncParam.add("wpml:gimbalYawRotateEnable", "1");
+            actionActuatorFuncParam.add("wpml:gimbalYawRotateAngle", "-45");
+            actionActuatorFuncParam.add("wpml:gimbalRotateTimeEnable", "0");
+            actionActuatorFuncParam.add("wpml:gimbalRotateTime", "0");
+            actionActuatorFuncParam.add("wpml:payloadPositionIndex", "0");
+        }
+
+        {
+            auto& action = actionGroup.add("wpml:action", "");
+            action.add("wpml:actionId", 7);
+            action.add("wpml:actionActuatorFunc", "takePhoto");
+            auto& actionActuatorFuncParam = action.add("wpml:actionActuatorFuncParam", "");
+            actionActuatorFuncParam.add("wpml:payloadPositionIndex", "0");
+        }
+
+        placemark.add("wpml:isRisky", 0);
     }
     // last point
     {
