@@ -4,6 +4,7 @@
 #include <boost/date_time/posix_time/posix_time.hpp>
 #include <minizip/zip.h>
 #include <iostream>
+#include "GlobalSignal.h"
 namespace soarscape {
 Setting g_settings;
 
@@ -32,7 +33,6 @@ void ExportWaypoints(const boost::filesystem::path& outputPath, Smart3DWaypoints
     waypoints.speed   = g_settings.speed;
     auto waylines_xml = GenerateWaylines(waypoints);
     auto templatekmz  = GenerateTemplate(waypoints);
-
     boost::property_tree::xml_writer_settings<std::string> settings(' ', 2);
     std::stringstream                                      template_ss, waylines_ss;
     boost::property_tree::write_xml(waylines_ss, waylines_xml, settings);
@@ -45,6 +45,7 @@ void ExportWaypoints(const boost::filesystem::path& outputPath, Smart3DWaypoints
 
     std::string content_template = template_ss.str();
     std::string content_waylines = waylines_ss.str();
+    LOG(content_waylines.c_str());
 
     // 打开 ZIP 文件进行写入
     zipFile zf = zipOpen(zipfilename, APPEND_STATUS_CREATE);
