@@ -3,6 +3,8 @@
 #include <QFileDialog>
 #include <boost/filesystem.hpp>
 #include <QDesktopServices>
+#include <QMessageBox>
+#include "GlobalSignal.h"
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow)
@@ -32,7 +34,18 @@ MainWindow::MainWindow(QWidget *parent) :
         QUrl _url = QUrl::fromLocalFile(QString::fromLocal8Bit(outputDir.parent_path().string().c_str()));
         QDesktopServices::openUrl(_url);
     });
+    connect(&g_globalSignal, &GLobalSignal::signal_log, [&](const QString& text) {
+        ui->plainTextEdit->appendPlainText(text);
+    });
 
+    connect(ui->pushButton, &QPushButton::clicked, [&]() {
+        if (ui->lineEdit->text().isEmpty() || ui->lineEdit_2->text().isEmpty())
+        {
+            QMessageBox::critical(this, "error", tr("Check input or output path!"));
+            return;
+        }
+        });
+    //LOG("asdasd");
    /* connect(ui->pushButton, &QPushButton::clicked, [&]() { 
         ui->label->setText("2");
     });
