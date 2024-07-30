@@ -1,4 +1,2 @@
-if(ENABLE_QTAPP)
-add_subdirectory(Qt5DemoApp)
-endif()
+add_subdirectory(DJI4in1Waypoints)
 add_subdirectory(DemoApp)

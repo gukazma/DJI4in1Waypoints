@@ -1,6 +1,6 @@
-set(TARGET_NAME Qt5DemoApp)
+set(TARGET_NAME DJI4in1Waypoints)
 
-find_package(Qt5 COMPONENTS Core Widgets Gui OpenGL REQUIRED)
+find_package(Qt6 COMPONENTS Core Widgets Gui OpenGL REQUIRED)
 
 set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTOMOC ON)
@@ -20,17 +20,17 @@ source_group(TREE ${CMAKE_CURRENT_LIST_DIR} FILES ${CPP_HEAD_FILES} ${CPP_SOUCE_
 add_executable(${TARGET_NAME} ${CPP_HEAD_FILES} ${CPP_SOUCE_FILES} ${UI_SOUCE_FILES}  ${QRC_FILE} ${APPRC_FILE} ${Translatefile})
 set_target_properties(${TARGET_NAME} PROPERTIES FOLDER Apps)
 target_link_libraries(${TARGET_NAME} PRIVATE
-Qt5::Core
-Qt5::Gui
-Qt5::Widgets
-Qt5::OpenGL
+Qt6::Core
+Qt6::Gui
+Qt6::Widgets
+Qt6::OpenGL
 )
 
 if(MSVC)
 message("Finding windeployqt")
 find_program(DEPLOYQT_EXECUTABLE windeployqt)
 add_custom_command(TARGET ${TARGET_NAME} POST_BUILD
-  COMMAND ${DEPLOYQT_EXECUTABLE} ${CMAKE_BINARY_DIR}/${TARGET_NAME}.exe
+  COMMAND ${DEPLOYQT_EXECUTABLE} ${CMAKE_BINARY_DIR}/bin/${TARGET_NAME}.exe
   COMMENT "Deploying qt dependencies after build..."
   WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
 )
