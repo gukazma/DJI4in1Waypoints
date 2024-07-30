@@ -24,6 +24,11 @@ Qt6::Core
 Qt6::Gui
 Qt6::Widgets
 Qt6::OpenGL
+Boost::system
+Boost::filesystem
+Boost::dynamic_linking
+Boost::thread
+unofficial::minizip::minizip
 )
 
 if(MSVC)

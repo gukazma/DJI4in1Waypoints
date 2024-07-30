@@ -1,6 +1,8 @@
 #include "MainWindow.h"
 #include "ui_MainWindow.h"
 #include <QFileDialog>
+#include <boost/filesystem.hpp>
+#include <QDesktopServices>
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow)
@@ -12,7 +14,25 @@ MainWindow::MainWindow(QWidget *parent) :
         {
             ui->lineEdit->setText(result);
         }
-        });
+    });
+
+    connect(ui->toolButton_2, &QPushButton::clicked, [&]() {
+        auto result = QFileDialog::getSaveFileName(this, tr("Open output waypoints kmz file"), "", "*.kmz");
+        if (!result.isEmpty())
+        {
+            ui->lineEdit_2->setText(result);
+        }
+    });
+    connect(ui->pushButton_2, &QPushButton::clicked, [&]() {
+        if (ui->lineEdit_2->text().isEmpty())
+        {
+            return;
+        }
+        boost::filesystem::path outputDir = ui->lineEdit_2->text().toLocal8Bit().toStdString();
+        QUrl _url = QUrl::fromLocalFile(QString::fromLocal8Bit(outputDir.parent_path().string().c_str()));
+        QDesktopServices::openUrl(_url);
+    });
+
    /* connect(ui->pushButton, &QPushButton::clicked, [&]() { 
         ui->label->setText("2");
     });
