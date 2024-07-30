@@ -207,29 +207,8 @@ void AttachWaypoints(boost::property_tree::ptree& document, Smart3DWaypoints& wa
     folder.add("wpml:executeHeightMode", "relativeToStartPoint");
     folder.add("wpml:waylineId", 0);
     folder.add("wpml:autoFlightSpeed", waypoints.speed);
-    // first
-    {
-        auto&      placemark = folder.add("Placemark", "");
-        auto&      point     = placemark.add("Point", "");
-        Vec3 pos       = waypoints.positions[0];
-        std::string coord = std::to_string(pos[0]) + "," + std::to_string(pos[1]);
-        point.add("coordinates", coord);
-        placemark.add("wpml:index", 0);
-        placemark.add("wpml:executeHeight", (int)pos[2]);
-        placemark.add("wpml:waypointSpeed", waypoints.speed);
-        auto& waypointHeadingParam = placemark.add("wpml:waypointHeadingParam", "");
-        waypointHeadingParam.add("wpml:waypointHeadingMode", "followWayline");
-        waypointHeadingParam.add("wpml:waypointHeadingAngleEnable", 1);
-        waypointHeadingParam.add("wpml:waypointHeadingPathMode", "followBadArc");
-        auto& waypointTurnParam = placemark.add("wpml:waypointTurnParam", "");
-        waypointTurnParam.add("wpml:waypointTurnMode", "toPointAndStopWithDiscontinuityCurvature");
-        waypointTurnParam.add("wpml:waypointTurnDampingDist", 0);
-        placemark.add("wpml:useStraightLine", 1);
-    }
-    int num = 0;
     for (size_t i = 0; i < waypoints.positions.size(); i++)
     {
-        
         auto& placemark                  = folder.add("Placemark", "");
         auto& waypointGimbalHeadingParam = placemark.add("wpml:waypointGimbalHeadingParam", "");
         waypointGimbalHeadingParam.add("wpml:waypointGimbalPitchAngle", 0);
@@ -237,7 +216,7 @@ void AttachWaypoints(boost::property_tree::ptree& document, Smart3DWaypoints& wa
         placemark.add("wpml:isRisky", 0);
         auto&      point     = placemark.add("Point", "");
         auto pos = waypoints.positions[i];
-;    std::string coord = std::to_string(pos[0]) + "," + std::to_string(pos[1]);
+        std::string coord = std::to_string(pos[0]) + "," + std::to_string(pos[1]);
         point.add("coordinates", coord);
         placemark.add("wpml:index", i);
         placemark.add("wpml:executeHeight", (int)pos[2]);
